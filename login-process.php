@@ -1,44 +1,48 @@
 <?php
-session_start();
+session_start(); // Start or resume the session
 
-// Check if the form has been submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Include your database connection code here
-    require_once "includes/conn.php"; // Make sure this includes your database connection code
-
-    // Get user input
+if (isset($_POST['signin'])) {
+    require 'includes/conn.php';
+    
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    // Validate user input (you can add more validation as needed)
     if (empty($email) || empty($password)) {
-        $_SESSION["login_errors_red_alert"] = true;
-        $_SESSION["login_errors"][] = "Both email and password are required.";
-        header("Location: login.php"); // Redirect back to login page
+        header("Location: login.php?error=emptyfields");
         exit();
-    }
+    } else {
+        $sql = "SELECT * FROM lists WHERE email=?;";
+        $stmt = mysqli_stmt_init($conn); // Initialize prepared statement
 
-    // Check if the user exists in the database
-    $query = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
-    $result = $conn->query($query);
-
-    if ($result && $result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        if (password_verify($password, $user["password"])) {
-            // Authentication successful
-            $_SESSION["user_id"] = $user["id"];
-            header("Location: dashboard.php"); // Redirect to the dashboard
+        if (!mysqli_stmt_prepare($stmt, $sql)) {
+            header("Location: login.php?error=sqlerror");
             exit();
+        } else {
+            mysqli_stmt_bind_param($stmt, "s", $email); // Bind parameters to the statement
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+
+            if ($row = mysqli_fetch_assoc($result)) {
+                $pwdCheck = password_verify($password, $row['password']);
+            
+                if ($pwdCheck == false) {
+                    echo "Password verification failed: " . $password;
+                    header("Location: login.php?error=wrongPwd");
+                    exit();
+                } elseif ($pwdCheck == true) {
+                    echo "Password verification successful: " . $password;
+                    $_SESSION['email'] = $row['email'];
+                    header("Location: dashboard.php");
+                    exit();
+                }
+            }
+             else {
+                header("Location: login.php?error=noUser");
+                exit();
+            }
         }
     }
-
-    // Authentication failed
-    $_SESSION["login_errors_red_alert"] = true;
-    $_SESSION["login_errors"][] = "Invalid email or password.";
-    header("Location: login.php"); // Redirect back to login page
-    exit();
 } else {
-    // If the form wasn't submitted, redirect to the login page
     header("Location: login.php");
     exit();
 }

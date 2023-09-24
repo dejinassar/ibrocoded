@@ -17,7 +17,7 @@
                 <li><a href="contactus.php">Contact</a></li>
                 <?php
                 session_start();
-                if (isset($_SESSION["user_id"])) {
+                if (isset($_SESSION["email"])) {
                     echo '<li><a href="profile.php">Profile</a></li>';
                 } else {
                     echo '<li><a href="login.php">Login</a></li>';

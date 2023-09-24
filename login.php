@@ -1,45 +1,38 @@
 <?php
-
 require_once "includes/header.php"; // Include the header from the includes folder
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Login</title>
-</head>
-<body>
 <main>
     <div class="auth-container">
         <section class="auth-section">
             <h2>Login</h2>
+
             <?php
-            // Display login errors in red alerts if any
-            if (isset($_SESSION["login_errors_red_alert"]) && isset($_SESSION["login_errors"])) {
-                echo "<div class='error-container'>";
-                foreach ($_SESSION["login_errors"] as $error) {
-                    echo "<div class='alert alert-danger'>$error</div>";
+            if (isset($_SESSION['email'])) {
+                header("Location: dashboard.php");
+                exit();
+            }
+
+            if (isset($_GET['error'])) {
+                $error = $_GET['error'];
+                if ($error === "emptyfields") {
+                    echo '<p class="error">Both email and password are required.</p>';
+                } elseif ($error === "sqlerror") {
+                    echo '<p class="error">Database error. Please try again later.</p>';
+                } elseif ($error === "wrongPwd") {
+                    echo '<p class="error">Incorrect password.</p>';
+                } elseif ($error === "noUser") {
+                    echo '<p class="error">No user found with this email.</p>';
                 }
-                echo "</div>";
-                unset($_SESSION["login_errors_red_alert"]);
-                unset($_SESSION["login_errors"]);
             }
             ?>
+
             <form method="post" action="login-process.php">
                 <input type="email" name="email" placeholder="Email" required maxlength="100">
                 <input type="password" name="password" placeholder="Password" required minlength="6" maxlength="50">
-                <button type="submit">Login</button>
+                <button type="submit" name="signin">Login</button>
             </form>
+
             <p>Don't have an account? <a href="signup.php">Sign Up</a></p>
         </section>
     </div>
 </main>
-</body>
-</html>
-
-<?php
-require_once "includes/footer.php"; // Include the footer from the includes folder
-?>

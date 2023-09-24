@@ -32,6 +32,8 @@ require_once "includes/header.php"; // Include the header from the includes fold
             <form method="post" action="signup-process.php">
                 <input type="text" name="first_name" placeholder="First Name" required minlength="2" maxlength="50">
                 <input type="text" name="last_name" placeholder="Last Name" required minlength="2" maxlength="50">
+                <input type="text" name="username" placeholder="username" required minlength="2" maxlength="50">
+              
                 <input type="email" name="email" placeholder="Email" required maxlength="100">
                 <input type="tel" name="pnum" placeholder="Phone Number" required minlength="11" maxlength="11">
 

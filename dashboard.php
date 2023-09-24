@@ -1,15 +1,27 @@
 <?php
-session_start(); // Start a new session or resume the existing session
+session_start();
 
-require_once "includes/conn.php"; // Include the database connection file
+// Check if the user is not logged in, redirect them to the login page
+if (!isset($_SESSION['email'])) {
+    header("Location: index.php");
+    exit();
+}
+// Check if the user clicked the "Logout" button
+if (isset($_POST['logout-submit'])) {
+    // Perform logout actions (destroy session, etc.)
+    session_destroy();
 
-// Check if the user is logged in
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
+    // Delete the user cookie (set it to expire in the past)
+    setcookie('email', '', time() - 3600, '/');
+
+    header("Location: index.php");
     exit();
 }
 
-require_once "includes/header.php"; // Include the header from the includes folder
+// Set a user cookie with the user's UID
+if (!isset($_COOKIE['email'])) {
+    setcookie('email', $_SESSION['email'], time() + 3600, '/');
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,36 +29,76 @@ require_once "includes/header.php"; // Include the header from the includes fold
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <title>Dashboard</title>
+    <style>
+        /* Basic CSS styling for the dashboard */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+        background-color: #333;
+        overflow: hidden;
+        display: flex; /* Use flexbox to align items horizontally */
+        align-items: center; /* Vertically center items in the navbar */
+    }
+
+    .navbar a {
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+
+    /* Style for the logout button */
+    .logout-btn {
+        background-color: #ff6347; /* Red color */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: auto; /* Push the logout button to the right */
+    }
+
+    .logout-btn:hover {
+        background-color: #ff4737; /* Darker red color on hover */
+    }
+     .welcome {
+            text-align: center;
+            margin-top: 20px;
+        }
+      </style>
 </head>
 <body>
-<main>
-    <div class="dashboard-container">
-        <section class="dashboard-section">
-            <h2>Welcome, <?php echo $_SESSION["first_name"] . " " . $_SESSION["last_name"]; ?></h2>
-            
-            <!-- Display other user information here -->
+<div class="navbar">
+    <a href="dashboard.php">Home</a>
+    <?php
+    // Check if the user is logged in and adjust the navbar links accordingly
+    if (isset($_SESSION['email'])) {
+        echo '<form action="" method="post">
+                <button type="submit" name="logout-submit" class="logout-btn">Logout</button>
+            </form>';
+    }
+    ?>
+</div>
 
-            <!-- Form to upload profile picture -->
-            <form method="post" action="upload-profile-pic.php" enctype="multipart/form-data">
-                <input type="file" name="profile_pic">
-                <button type="submit">Upload Profile Pic</button>
-            </form>
 
-            <!-- Form to edit user information -->
-            <form method="post" action="edit-profile.php">
-                <!-- Editable fields here -->
-                <button type="submit">Edit Information</button>
-            </form>
-            
-            <a href="logout.php">Logout</a>
-        </section>
+
+
+
+    <div class="welcome">
+        <h1>Welcome, <?php echo $_SESSION['email']; ?>!</h1>
+        <!-- Other dashboard content here -->
     </div>
-</main>
 </body>
 </html>
-
-<?php
-require_once "includes/footer.php"; // Include the footer from the includes folder
-?>

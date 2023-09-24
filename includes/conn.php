@@ -1,13 +1,10 @@
 <?php
-$hostname = "localhost";
-$username = "root";
-$password = "";
-$dbname = "contact_form"; 
+//db connection
+    $conn = mysqli_connect('localhost', 'root', '', 'contact_form');
 
-$conn = new mysqli($hostname, $username, $password, $dbname);
+    if($conn){
+        //die("Connection Failed: ". mysqli_connect_error());
+        echo "connection success";
+    }
 
-// Check the connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 ?>
